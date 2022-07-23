@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  master:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        - MAVEN_VERSION=${MAVEN_VERSION}
+        - OPENJDK_VERSION=${OPENJDK_VERSION}
+        - GROUP_ID=${GROUP_ID}
+        - ARTIFACT_ID=${ARTIFACT_ID}
+        - MAIN_CLASS=${MAIN_CLASS}
+        - PROJECT_NAME=${PROJECT_NAME}
+    restart: on-failure
+    networks:
+      - custom_network
+    container_name: master
+    hostname: master
+    command: >
+      sh -c "/usr/bin/java -jar ${ARTIFACT_ID}-1.0-jar-with-dependencies.jar -m 127.0.0.1 -id ${MASTER_PEER_ID}"
+
+  generic:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.dev
+      args:
+        - MAVEN_VERSION=${MAVEN_VERSION}
+        - OPENJDK_VERSION=${OPENJDK_VERSION}
+        - GROUP_ID=${GROUP_ID}
+        - ARTIFACT_ID=${ARTIFACT_ID}
+        - MAIN_CLASS=${MAIN_CLASS}
+        - PROJECT_NAME=${PROJECT_NAME}
+    restart: on-failure
+    networks:
+      - custom_network
+    command: >
+      sh -c "/usr/bin/java -jar ${ARTIFACT_ID}-1.0-jar-with-dependencies.jar -m master -id $$GENERIC_PEER_ID"
+
+networks:
+  custom_network:
+    driver: bridge
