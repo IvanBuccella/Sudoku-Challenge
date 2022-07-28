@@ -49,7 +49,13 @@ public class SudokuGameImpl implements SudokuGame {
 
 	@Override
 	public Integer[][] generateNewSudoku(String _game_name) {
-		Sudoku sudokuInstance = new Sudoku(_game_name, new HashSet<>());
+		Sudoku sudokuInstance;
+		sudokuInstance = this.findGame(_game_name);
+
+		if (sudokuInstance != null && !sudokuInstance.isFinished())
+			return null;
+
+		sudokuInstance = new Sudoku(_game_name, new HashSet<>());
 		sudokuInstance.addUser(peerDHT.peer().peerAddress(), "dealer");
 		try {
 			peerDHT.put(Number160.createHash(_game_name))

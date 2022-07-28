@@ -69,7 +69,7 @@ public class Example {
                                 .read("Name:");
                         matrix = peer.generateNewSudoku(gameName);
                         if (matrix == null) {
-                            terminal.printf("\nCANNOT CRATE THE GAME\n", gameName);
+                            terminal.printf("\nCANNOT CRATE THE GAME. TRY TO CHANGE ITS OWN NAME. \n", gameName);
                         } else {
                             terminal.printf("\nGAME %s SUCCESSFULLY CREATED\n", gameName);
                         }
@@ -127,9 +127,11 @@ public class Example {
 
                         Integer score = peer.placeNumber(gameName, i, j, number);
                         if (score == null) {
-                            terminal.printf("\n YOU CANNOT OPERATE ON THE GAME %s \n", gameName);
+                            terminal.printf(
+                                    "\n YOU CANNOT OPERATE ON THE GAME. IT DOES NOT EXIST OR HAS ALREADY BEEN COMPLETED. %s \n",
+                                    gameName);
                         } else {
-                            terminal.printf("\n Received score %d\n", score);
+                            terminal.printf("\n RECEIVED A SCORE OF %d\n", score);
                         }
                         break;
                     case 5:
@@ -143,7 +145,6 @@ public class Example {
                         break;
                 }
             }
-
         } catch (CmdLineException clEx) {
             System.err.println("ERROR: Unable to parse command-line options: " + clEx);
         }
