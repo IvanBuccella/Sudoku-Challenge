@@ -1,5 +1,4 @@
 ARG MAVEN_VERSION
-ARG OPENJDK_VERSION
 ARG GROUP_ID
 ARG ARTIFACT_ID
 ARG PROJECT_NAME
@@ -16,9 +15,3 @@ RUN sed -i s/mycustomgroupid/${GROUP_ID}/g pom.xml
 RUN sed -i s/mycustomartifactid/${ARTIFACT_ID}/g pom.xml
 RUN sed -i s/mycustommainclass/${GROUP_ID}.${ARTIFACT_ID}.${MAIN_CLASS}/g pom.xml
 RUN sed -i s/mycustomprojectname/${PROJECT_NAME}/g pom.xml
-RUN mvn package -DskipTests
-
-FROM openjdk:${OPENJDK_VERSION}
-ARG ARTIFACT_ID
-WORKDIR /app
-COPY --from=builder /app/target/${ARTIFACT_ID}-1.0-jar-with-dependencies.jar /app

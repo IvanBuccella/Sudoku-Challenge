@@ -41,6 +41,25 @@ services:
       - -c
       - "/usr/bin/java -jar ${ARTIFACT_ID}-1.0-jar-with-dependencies.jar -m master -id $$GENERIC_PEER_ID"
 
+  test:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile.test.dev
+      args:
+        - MAVEN_VERSION=${MAVEN_VERSION}
+        - GROUP_ID=${GROUP_ID}
+        - ARTIFACT_ID=${ARTIFACT_ID}
+        - MAIN_CLASS=${MAIN_CLASS}
+        - PROJECT_NAME=${PROJECT_NAME}
+    restart: on-failure
+    networks:
+      - custom_network
+    container_name: test
+    hostname: test
+    command:
+      - mvn
+      - test
+
 networks:
   custom_network:
     driver: bridge

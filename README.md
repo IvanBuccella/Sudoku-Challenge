@@ -14,6 +14,7 @@
   - **[Repository](#repository)**
   - **[Environment Variables](#environment-variables)**
   - **[Build](#build)**
+  - **[Test](#test)**
   - **[Start](#start)**
 
 ## Project Description
@@ -53,15 +54,23 @@ Build the local environment with Docker:
 $ docker-compose build
 ```
 
+### Test
+
+For testing the code with Docker, you can use the following command:
+
+```sh
+$ docker-compose run test
+```
+
 ### Start
 
-For the master peer:
+For executing the master peer, you can use the following command:
 
 ```sh
 $ docker-compose run master
 ```
 
-For the other generic peers:
+For executing the other generic peers, you can use the following command (note that the PEER ID = 0 is reserved to the master peer):
 
 ```sh
 $ docker-compose run -e GENERIC_PEER_ID=1 generic
@@ -69,7 +78,7 @@ $ docker-compose run -e GENERIC_PEER_ID=2 generic
 $ docker-compose run -e GENERIC_PEER_ID=... generic
 ```
 
-Use this command for stopping all containers:
+For stopping all containers, you can use the following command:
 
 ```sh
 $ docker-compose down
