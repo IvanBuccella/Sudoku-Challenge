@@ -1,146 +1,162 @@
 package it.ivanbuccella.sudoku;
 
-import java.io.IOException; 
-
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-/**
- * docker build --no-cache -t test  .
- * docker run -i -e MASTERIP="127.0.0.1" -e ID=0 test
- * use -i for interactive mode
- * use -e to set the environment variables
- * @author carminespagnuolo
- *
- */
+
+import it.ivanbuccella.sudoku.implementations.Message;
+import it.ivanbuccella.sudoku.implementations.SudokuGameImpl;
+import it.ivanbuccella.sudoku.interfaces.MessageListener;
+
 public class Example {
 
-	@Option(name="-m", aliases="--masterip", usage="the master peer ip address", required=true)
-	private static String master;
+    @Option(name = "-m", aliases = "--masterip", usage = "the master peer ip address", required = true)
+    private static String master;
 
-	@Option(name="-id", aliases="--identifierpeer", usage="the unique identifier for this peer", required=true)
-	private static int id;
+    @Option(name = "-id", aliases = "--identifierpeer", usage = "the unique identifier for this peer", required = true)
+    private static int id;
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		class MessageListenerImpl implements MessageListener{
-			int peerid;
-		
-			public MessageListenerImpl(int peerid)
-			{
-				this.peerid=peerid;
+        class MessageListenerImpl implements MessageListener {
+            int peerid;
 
-			}
-			public Object parseMessage(Object obj) {
-				
-				TextIO textIO = TextIoFactory.getTextIO();
-				TextTerminal terminal = textIO.getTextTerminal();
-				terminal.printf("\n"+peerid+"] (Direct Message Received) "+obj+"\n\n");
-				return "success";
-			}
+            public MessageListenerImpl(int peerid) {
+                this.peerid = peerid;
+            }
 
-		}
-		Example example = new Example();
-		final CmdLineParser parser = new CmdLineParser(example);  
-		try  
-		{  
-			parser.parseArgument(args);  
-			TextIO textIO = TextIoFactory.getTextIO();
-			TextTerminal terminal = textIO.getTextTerminal();
-			PublishSubscribeImpl peer = 
-					new PublishSubscribeImpl(id, master, new MessageListenerImpl(id));
-			
-			terminal.printf("\nStaring peer id: %d on master node: %s\n",
-					id, master);
-			while(true) {
-				printMenu(terminal);
-				
-				int option = textIO.newIntInputReader()
-						.withMaxVal(5)
-						.withMinVal(1)
-						.read("Option");
-				switch (option) {
-				case 1:
-					terminal.printf("\nENTER TOPIC NAME\n");
-					String name = textIO.newStringInputReader()
-					        .withDefaultValue("default-topic")
-					        .read("Name:");
-					if(peer.createTopic(name))
-						terminal.printf("\nTOPIC %s SUCCESSFULLY CREATED\n",name);
-					else
-						terminal.printf("\nERROR IN TOPIC CREATION\n");
-					break;
-				case 2:
-					terminal.printf("\nENTER TOPIC NAME\n");
-					String sname = textIO.newStringInputReader()
-					        .withDefaultValue("default-topic")
-					        .read("Name:");
-					if(peer.subscribetoTopic(sname))
-						terminal.printf("\n SUCCESSFULLY SUBSCRIBED TO %s\n",sname);
-					else
-						terminal.printf("\nERROR IN TOPIC SUBSCRIPTION\n");
-					break;
-				case 4:
-					terminal.printf("\nENTER TOPIC NAME\n");
-					String tname = textIO.newStringInputReader()
-					        .withDefaultValue("default-topic")
-					        .read(" Name:");
-					terminal.printf("\nENTER MESSAGE\n");
-					String message = textIO.newStringInputReader()
-					        .withDefaultValue("default-message")
-					        .read(" Message:");
-					if(peer.publishToTopic(tname,message))
-						terminal.printf("\n SUCCESSFULLY PUBLISH MESSAGE ON TOPIC %s\n",tname);
-					else
-						terminal.printf("\nERROR IN TOPIC PUBLISH\n");
+            public Object parseMessage(Object obj) {
+                TextIO textIO = TextIoFactory.getTextIO();
+                TextTerminal terminal = textIO.getTextTerminal();
+                if (!(obj instanceof Message))
+                    return "failed";
 
-					break;
-				case 3:
-					terminal.printf("\nENTER TOPIC NAME\n");
-					String uname = textIO.newStringInputReader()
-					        .withDefaultValue("default-topic")
-					        .read("Name:");
-					if(peer.unsubscribeFromTopic(uname))
-						terminal.printf("\n SUCCESSFULLY UNSUBSCRIBED TO %s\n",uname);
-					else
-						terminal.printf("\nERROR IN TOPIC UN SUBSCRIPTION\n");
-					break;
-				case 5:
-					terminal.printf("\nARE YOU SURE TO LEAVE THE NETWORK?\n");
-					boolean exit = textIO.newBooleanInputReader().withDefaultValue(false).read("exit?");
-					if(exit) {
-						peer.leaveNetwork();
-						System.exit(0);
-					}
-					break;
+                Message message = (Message) obj;
+                terminal.printf("\n Peer [" + peerid + "] on Game " + message.getGameName() + " has received "
+                        + message.getScore()
+                        + " score.\n\n");
 
-				default:
-					break;
-				}
-			}
+                return "success";
+            }
+        }
 
+        Example example = new Example();
+        final CmdLineParser parser = new CmdLineParser(example);
 
+        try {
+            parser.parseArgument(args);
+            String gameName;
+            Integer[][] matrix;
+            TextIO textIO = TextIoFactory.getTextIO();
+            TextTerminal terminal = textIO.getTextTerminal();
+            SudokuGameImpl peer = new SudokuGameImpl(id, master, new MessageListenerImpl(id));
 
-		}  
-		catch (CmdLineException clEx)  
-		{  
-			System.err.println("ERROR: Unable to parse command-line options: " + clEx);  
-		}  
+            terminal.printf("\nStaring peer id: %d on master node: %s\n",
+                    id, master);
+            while (true) {
+                printMenu(terminal);
 
+                int option = textIO.newIntInputReader()
+                        .withMaxVal(5)
+                        .withMinVal(1)
+                        .read("Option");
+                switch (option) {
+                    case 1:
+                        terminal.printf("\nENTER GAME NAME\n");
+                        gameName = textIO.newStringInputReader()
+                                .withDefaultValue("default-game")
+                                .read("Name:");
+                        matrix = peer.generateNewSudoku(gameName);
+                        terminal.printf("\nGAME %s SUCCESSFULLY CREATED\n", gameName);
+                        printSudoku(terminal, matrix);
+                        break;
+                    case 2:
+                        terminal.printf("\nENTER GAME NAME\n");
+                        gameName = textIO.newStringInputReader()
+                                .withDefaultValue("default-game")
+                                .read("Name:");
+                        terminal.printf("\nENTER NICKNAME\n");
+                        String nickName = textIO.newStringInputReader()
+                                .withDefaultValue("default-nickname")
+                                .read(" Nickname:");
+                        if (peer.join(gameName, nickName))
+                            terminal.printf("\n SUCCESSFULLY SUBSCRIBED TO %s\n", gameName);
+                        else
+                            terminal.printf("\nERROR IN TOPIC SUBSCRIPTION\n");
+                        break;
+                    case 3:
+                        terminal.printf("\nENTER GAME NAME\n");
+                        gameName = textIO.newStringInputReader()
+                                .withDefaultValue("default-game")
+                                .read("Name:");
+                        matrix = peer.getSudoku(gameName);
+                        printSudoku(terminal, matrix);
+                        break;
+                    case 4:
+                        terminal.printf("\nENTER GAME NAME\n");
+                        gameName = textIO.newStringInputReader()
+                                .withDefaultValue("default-game")
+                                .read("Name:");
 
-	}
-	public static void printMenu(TextTerminal terminal) {
-		terminal.printf("\n1 - CREATE TOPIC\n");
-		terminal.printf("\n2 - SUBSCRIBE TOPIC\n");
-		terminal.printf("\n3 - UN SUBSCRIBE ON TOPIC\n");
-		terminal.printf("\n4 - PUBLISH ON TOPIC\n");
-		terminal.printf("\n5 - EXIT\n");
+                        terminal.printf("\nENTER i\n");
+                        Integer i = textIO.newIntInputReader()
+                                .withMaxVal(8)
+                                .withMinVal(0)
+                                .read(" i:");
 
-	}
+                        terminal.printf("\nENTER j\n");
+                        Integer j = textIO.newIntInputReader()
+                                .withMaxVal(8)
+                                .withMinVal(0)
+                                .read(" j:");
 
+                        terminal.printf("\nENTER number\n");
+                        Integer number = textIO.newIntInputReader()
+                                .withMaxVal(9)
+                                .withMinVal(1)
+                                .read(" number:");
 
+                        Integer score = peer.placeNumber(gameName, i, j, number);
+                        terminal.printf("\n Received score %d\n", score);
+
+                        break;
+                    case 5:
+                        terminal.printf("\nARE YOU SURE TO LEAVE THE GAME?\n");
+                        boolean exit = textIO.newBooleanInputReader().withDefaultValue(false).read("exit?");
+                        if (exit) {
+                            System.exit(0);
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+        } catch (CmdLineException clEx) {
+            System.err.println("ERROR: Unable to parse command-line options: " + clEx);
+        }
+
+    }
+
+    public static void printSudoku(TextTerminal terminal, Integer[][] matrix) {
+        for (Integer i = 0; i < 9; i++) {
+            terminal.printf("\n");
+            for (Integer j = 0; j < 9; j++) {
+                terminal.printf(" %d", matrix[i][j].intValue());
+            }
+        }
+    }
+
+    public static void printMenu(TextTerminal terminal) {
+        terminal.printf("\n1 - CREATE GAME\n");
+        terminal.printf("\n2 - JOIN GAME\n");
+        terminal.printf("\n3 - GET MATRIX\n");
+        terminal.printf("\n4 - PLACE NUMBER\n");
+        terminal.printf("\n5 - LEAVE GAME\n");
+    }
 
 }
