@@ -51,7 +51,6 @@ public class SudokuGameImpl implements SudokuGame {
 	public Integer[][] generateNewSudoku(String _game_name) {
 		Sudoku sudokuInstance = new Sudoku(_game_name, new HashSet<>());
 		sudokuInstance.addUser(peerDHT.peer().peerAddress(), "dealer");
-
 		try {
 			peerDHT.put(Number160.createHash(_game_name))
 					.data(new Data(sudokuInstance)).start().awaitUninterruptibly();
@@ -60,18 +59,16 @@ public class SudokuGameImpl implements SudokuGame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return new Integer[9][9];
+		return null;
 	}
 
 	@Override
 	public boolean join(String _game_name, String _nickname) {
-		Sudoku sudokuInstance;
+		Sudoku sudokuInstance = this.findGame(_game_name);
+		if (sudokuInstance == null)
+			return false;
 
 		try {
-			sudokuInstance = this.findGame(_game_name);
-			if (sudokuInstance == null)
-				return false;
-
 			sudokuInstance.addUser(peerDHT.peer().peerAddress(), _nickname);
 			peerDHT.put(Number160.createHash(_game_name))
 					.data(new Data(sudokuInstance)).start().awaitUninterruptibly();
@@ -87,7 +84,7 @@ public class SudokuGameImpl implements SudokuGame {
 	public Integer[][] getSudoku(String _game_name) {
 		Sudoku sudokuInstance = this.findGame(_game_name);
 		if (sudokuInstance == null) {
-			return new Integer[9][9];
+			return null;
 		}
 		return sudokuInstance.getBoard();
 	}
@@ -96,16 +93,16 @@ public class SudokuGameImpl implements SudokuGame {
 	public Integer placeNumber(String _game_name, int _i, int _j, int _number) {
 		Sudoku sudokuInstance = this.findGame(_game_name);
 		if (sudokuInstance == null) {
-			return 999;
+			return null;
 		}
 
 		User sudokuUser = sudokuInstance.getUser(peerDHT.peer().peerAddress());
 		if (sudokuUser == null) {
-			return 999;
+			return null;
 		}
 
 		if (sudokuInstance.isFinished()) {
-			return 999;
+			return null;
 		}
 
 		Integer score = sudokuInstance.add(_i, _j, _number);

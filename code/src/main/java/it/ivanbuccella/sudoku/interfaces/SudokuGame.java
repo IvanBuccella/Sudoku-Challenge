@@ -53,7 +53,7 @@ public interface SudokuGame {
 	 * @param _i         the position on the row.
 	 * @param _j         the position on the column.
 	 * @param _number    the solution number.
-	 * @return the integer score of the plaed number.
+	 * @return the integer score of the placed number.
 	 */
 	public Integer placeNumber(String _game_name, int _i, int _j, int _number);
 }

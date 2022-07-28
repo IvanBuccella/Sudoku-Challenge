@@ -68,7 +68,11 @@ public class Example {
                                 .withDefaultValue("default-game")
                                 .read("Name:");
                         matrix = peer.generateNewSudoku(gameName);
-                        terminal.printf("\nGAME %s SUCCESSFULLY CREATED\n", gameName);
+                        if (matrix == null) {
+                            terminal.printf("\nCANNOT CRATE THE GAME\n", gameName);
+                        } else {
+                            terminal.printf("\nGAME %s SUCCESSFULLY CREATED\n", gameName);
+                        }
                         printSudoku(terminal, matrix);
                         break;
                     case 2:
@@ -91,7 +95,11 @@ public class Example {
                                 .withDefaultValue("default-game")
                                 .read("Name:");
                         matrix = peer.getSudoku(gameName);
-                        printSudoku(terminal, matrix);
+                        if (matrix == null) {
+                            terminal.printf("\nCANNOT GET THE MATRIX\n", gameName);
+                        } else {
+                            printSudoku(terminal, matrix);
+                        }
                         break;
                     case 4:
                         terminal.printf("\nENTER GAME NAME\n");
@@ -118,10 +126,10 @@ public class Example {
                                 .read(" number:");
 
                         Integer score = peer.placeNumber(gameName, i, j, number);
-                        if (score != 999) {
-                            terminal.printf("\n Received score %d\n", score);
+                        if (score == null) {
+                            terminal.printf("\n YOU CANNOT OPERATE ON THE GAME %s \n", gameName);
                         } else {
-                            terminal.printf("\n You cannot operate on the game %s \n", gameName);
+                            terminal.printf("\n Received score %d\n", score);
                         }
                         break;
                     case 5:
@@ -131,7 +139,6 @@ public class Example {
                             System.exit(0);
                         }
                         break;
-
                     default:
                         break;
                 }
