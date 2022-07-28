@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public class Sudoku implements Serializable {
     private String gameName;
-    private HashSet<PeerAddress> users;
+    private HashSet<User> users;
     private Integer[][] board = {
             { 3, 0, 6, 5, 0, 8, 4, 0, 0 }, { 5, 2, 0, 0, 0, 0, 0, 0, 0 },
             { 0, 8, 7, 0, 0, 0, 0, 3, 1 }, { 0, 0, 3, 0, 1, 0, 0, 8, 0 },
@@ -18,7 +18,7 @@ public class Sudoku implements Serializable {
         this.board = board;
     }
 
-    public Sudoku(String gameName, HashSet<PeerAddress> users) {
+    public Sudoku(String gameName, HashSet<User> users) {
         this.gameName = gameName;
         this.users = users;
     }
@@ -35,23 +35,42 @@ public class Sudoku implements Serializable {
         this.gameName = gameName;
     }
 
-    public HashSet<PeerAddress> getUsers() {
+    public HashSet<User> getUsers() {
         return this.users;
     }
 
-    public void setUsers(HashSet<PeerAddress> users) {
+    public void setUsers(HashSet<User> users) {
         this.users = users;
     }
 
-    public void removeUser(PeerAddress peerAddress) {
+    public void removeUser(PeerAddress peerAddress, String nickName) {
         if (this.users != null)
-            this.users.remove(peerAddress);
+            this.users.remove(new User(peerAddress, nickName));
     }
 
-    public void addUser(PeerAddress peerAddress) {
+    public void addUser(PeerAddress peerAddress, String nickName) {
         if (this.users == null)
             this.users = new HashSet<>();
-        this.users.add(peerAddress);
+
+        User user = this.getUser(peerAddress);
+        if (user != null) {
+            user.setNickName(nickName);
+            return;
+        }
+
+        this.users.add(new User(peerAddress, nickName));
+    }
+
+    public User getUser(PeerAddress peerAddress) {
+        if (this.users == null)
+            this.users = new HashSet<>();
+
+        for (User user : this.users) {
+            if (user.getPeerAddress().equals(peerAddress))
+                return user;
+        }
+
+        return null;
     }
 
     public boolean presentInRow(Integer value, Integer row) {
@@ -112,4 +131,7 @@ public class Sudoku implements Serializable {
         return score;
     }
 
+    public boolean isFinished() {
+        return false;
+    }
 }

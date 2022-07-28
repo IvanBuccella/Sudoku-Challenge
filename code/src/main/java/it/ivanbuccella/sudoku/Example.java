@@ -35,9 +35,7 @@ public class Example {
                     return "failed";
 
                 Message message = (Message) obj;
-                terminal.printf("\n Peer [" + peerid + "] on Game " + message.getGameName() + " has received "
-                        + message.getScore()
-                        + " score.\n\n");
+                terminal.printf(message.getMessage(peerid));
 
                 return "success";
             }
@@ -83,9 +81,9 @@ public class Example {
                                 .withDefaultValue("default-nickname")
                                 .read(" Nickname:");
                         if (peer.join(gameName, nickName))
-                            terminal.printf("\n SUCCESSFULLY SUBSCRIBED TO %s\n", gameName);
+                            terminal.printf("\n SUCCESSFULLY JOINED THE GAME %s\n", gameName);
                         else
-                            terminal.printf("\nERROR IN TOPIC SUBSCRIPTION\n");
+                            terminal.printf("\nERROR IN JOINING THE GAME %s\n", gameName);
                         break;
                     case 3:
                         terminal.printf("\nENTER GAME NAME\n");
@@ -120,8 +118,11 @@ public class Example {
                                 .read(" number:");
 
                         Integer score = peer.placeNumber(gameName, i, j, number);
-                        terminal.printf("\n Received score %d\n", score);
-
+                        if (score != 999) {
+                            terminal.printf("\n Received score %d\n", score);
+                        } else {
+                            terminal.printf("\n You cannot operate on the game %s \n", gameName);
+                        }
                         break;
                     case 5:
                         terminal.printf("\nARE YOU SURE TO LEAVE THE GAME?\n");
