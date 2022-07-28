@@ -146,12 +146,12 @@ public class SudokuGameImpl implements SudokuGame {
 		return true;
 	}
 
-	public Sudoku findGame(String gameName) {
-		if (gameName == null)
+	public Sudoku findGame(String _game_name) {
+		if (_game_name == null)
 			return null;
 
 		try {
-			FutureGet futureGet = peerDHT.get(Number160.createHash(gameName)).start();
+			FutureGet futureGet = peerDHT.get(Number160.createHash(_game_name)).start();
 			futureGet.awaitUninterruptibly();
 			if (!futureGet.isSuccess())
 				return null;
@@ -165,5 +165,26 @@ public class SudokuGameImpl implements SudokuGame {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public boolean leaveGame(String _game_name) {
+		if (!mySudokuGamesList.contains(_game_name))
+			return false;
+
+		Sudoku sudokuInstance = this.findGame(_game_name);
+		if (sudokuInstance == null)
+			return false;
+
+		sudokuInstance.removeUser(peerDHT.peer().peerAddress());
+		try {
+			peerDHT.put(Number160.createHash(_game_name)).data(new Data(sudokuInstance)).start().awaitUninterruptibly();
+			mySudokuGamesList.remove(_game_name);
+			peerDHT.peer().announceShutdown().start().awaitUninterruptibly();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 }

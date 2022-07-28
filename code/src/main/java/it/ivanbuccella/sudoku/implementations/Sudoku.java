@@ -61,9 +61,15 @@ public class Sudoku implements Serializable {
         this.users = users;
     }
 
-    public void removeUser(PeerAddress peerAddress, String nickName) {
-        if (this.users != null)
-            this.users.remove(new User(peerAddress, nickName));
+    public void removeUser(PeerAddress peerAddress) {
+        if (this.users == null)
+            return;
+
+        User user = this.getUser(peerAddress);
+        if (user == null)
+            return;
+
+        this.users.remove(user);
     }
 
     public void addUser(PeerAddress peerAddress, String nickName) {

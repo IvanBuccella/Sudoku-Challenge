@@ -135,9 +135,15 @@ public class Example {
                         }
                         break;
                     case 5:
+                        terminal.printf("\nENTER GAME NAME\n");
+                        gameName = textIO.newStringInputReader()
+                                .withDefaultValue("default-game")
+                                .read("Name:");
+
                         terminal.printf("\nARE YOU SURE TO LEAVE THE GAME?\n");
                         boolean exit = textIO.newBooleanInputReader().withDefaultValue(false).read("exit?");
                         if (exit) {
+                            peer.leaveGame(gameName);
                             System.exit(0);
                         }
                         break;
