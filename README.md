@@ -20,11 +20,12 @@
 ## Project Description
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/220px-Sudoku-by-L2G-20050714.svg.png"/>
+
 Design and develop a Sudoku challenge game on a P2P network.<br>
-Each user can place a number of the sudoku game; if it is not already placed takes 1 point, if it is already placed and it is rights take 0 points, in other case receive -1 point.<br>
-The games are based on a 9 x 9 matrix. All users that play to a game are automatically informed when a user increment its score and when the game is finished.<br>
-The system allows the users to generate (automatically) a new Sudoku challenge identified by a name, join in a challenge using a nickname, get the integer matrix describing the Sudoku challenge, and place a solution number.<br>
-As described in the [SudokuGame Java API](https://github.com/spagnuolocarmine/distributedsystems-unisa/blob/master/homework/SudokuGame.java).
+Each user can place a number of the sudoku game; if it is not already placed takes 1 point, if it is already placed and it is right take 0 points, in other cases receive -1 point.<br>
+The games are based on a 9 x 9 matrix. All users that play a game are automatically informed when a user increments their score and when the game is finished.<br>
+The system allows the users to generate (automatically) a new Sudoku challenge identified by a name, join in a challenge using a nickname, get the integer matrix describing the Sudoku challenge, and place a solution number.<br><br>
+The main goal of the project is to realize the above-described functionality through using async and anonymous communication, with the advantages offers by the Publish/Subscribe paradigm and the TomP2P library.
 
 ## Prerequisites and Technologies
 
@@ -70,6 +71,16 @@ The project source code folder `code/src/main/java/it/ivanbuccella/sudoku` is ma
 - the [Example.java](https://github.com/IvanBuccella/ivan_buccella_adc_2021/blob/58d3691073e271c434db3ca9d5d3238b6d6fa78c/code/src/main/java/it/ivanbuccella/sudoku/Example.java) file: defines the Main class for the project.
 
 ### Methods
+
+In the `SudokuGameImpl.java` the following methods have been implemented, and some of their definitions inherited from the `SudokuGame.java` interface:
+
+- `generateNewSudoku`: allows a peer to create a new Sudoku game;
+- `join`: allows a peer to join an existing Sudoku game;
+- `getSudoku`: allows a peer to get the Sudoku game matrix;
+- `placeNumber`: allows a peer to place a new solution number in the Sudoku game;
+- `sendMessage`: allows a peer to send update messages to all the joined peers in the Sudoku game;
+- `findGame`: allows to find an existing Sudoku game;
+- `leaveGame`: allows a peer to leave the Sudoku game including the associated network.
 
 ### Testing using JUnit
 
